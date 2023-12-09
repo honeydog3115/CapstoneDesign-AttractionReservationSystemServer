@@ -1,68 +1,97 @@
 package com.example.attractionReservationSystem.controller;
 
 import com.example.attractionReservationSystem.dao.Member;
-import com.example.attractionReservationSystem.dto.LoginRequest;
-import com.example.attractionReservationSystem.dto.SignupRequest;
+import com.example.attractionReservationSystem.dto.Login.LoginRequest;
+import com.example.attractionReservationSystem.dto.Login.LoginResponse;
+import com.example.attractionReservationSystem.dto.Response;
+import com.example.attractionReservationSystem.dto.Signup.SignupRequest;
 import com.example.attractionReservationSystem.repository.MemberRepository;
-import com.example.attractionReservationSystem.service.MemberService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/member")
+@RequestMapping("/member")
 public class MemberController {
-
-    private final MemberService memberService;
 
     @Autowired
     MemberRepository memberRepository;
 
-    @GetMapping()
-    public ResponseEntity<?> getMemberList() {
-        System.out.println("api 호출");
-
-        return ResponseEntity.ok(memberService.getMemberList());
-    }
 
     // @Valid를 사용해야 추가한 Validation을 통해 검증을 할 수 있음
     @PostMapping("/signup")
     public ResponseEntity<?> registerMember(@Valid @RequestBody SignupRequest signupRequest){
+        Response response = new Response("회원가입 성공", true);
+
+        if(signupRequest.getId().contains(" ") || signupRequest.getPw().contains(" ") || signupRequest.getName().contains(" ")){
+            response.setMessage("아이디, 비밀번호, 이름에 공백은 포함될 수 없습니다.");
+            response.setSuccess(false);
+
+            return ResponseEntity
+                    .badRequest()
+                    .body(response);
+        }
+
         // 이미 아이디가 존재하는 경우
-        if(memberRepository.existsByMemberId(signupRequest.getMemberId())){
+        if(memberRepository.existsByMemberId(signupRequest.getId())){
+            response.setMessage("이미 존재하는 사용자 아이디입니다.");
+            response.setSuccess(false);
+
             return  ResponseEntity
                     .badRequest()
-                    .body(new String("Error : 이미 존재하는 id입니다."));
+                    .body(response);
         }
+
+        System.out.println(signupRequest.getId());
+        System.out.println(signupRequest.getPw());
+
         Member newMember = new Member();
-        newMember.setMemberId(signupRequest.getMemberId());
+        newMember.setMemberId(signupRequest.getId());
         newMember.setPw(signupRequest.getPw());
         newMember.setName(signupRequest.getName());
+        newMember.setPrevAttraction("");
+        newMember.setReservAttraction("");
+        newMember.setWaitingNumber(0);
 
         memberRepository.save(newMember);
 
-        return ResponseEntity.ok(new String("회원가입이 완료되었습니다."));
+        return ResponseEntity.ok(response);
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> loginMember(@Valid @RequestBody LoginRequest loginRequest){
-        // 일치하는 id가 없는 경우
-        if(memberRepository.existsByMemberId(loginRequest.getMemberId())){
+
+        System.out.println(loginRequest.getId());
+        System.out.println(loginRequest.getPw());
+
+        LoginResponse loginResponse = new LoginResponse("", false, "");
+
+        //일치하는 id가 없는 경우
+        if(!memberRepository.existsByMemberId(loginRequest.getId())){
+            loginResponse.setMessage("일치하는 사용자 아이디가 없습니다.");
             return ResponseEntity
                     .badRequest()
-                    .body(new String("Error : 일치하는 id가 없습니다."));
-        }
-        if(memberRepository.existsByMemberIdAndAndPw(loginRequest.getMemberId(), loginRequest.getPw())){
-            return ResponseEntity
-                    .badRequest()
-                    .body(new String("Error : pw가 틀렸습니다."));
+                    .body(loginResponse);
         }
 
-        return ResponseEntity.ok(new String("로그인 성공"));
+        if(!memberRepository.existsByMemberIdAndPw(loginRequest.getId(), loginRequest.getPw())){
+            loginResponse.setMessage("비밀번호가 틀렸습니다.");
+            return ResponseEntity
+                    .badRequest()
+                    .body(loginResponse);
+        }
+
+        loginResponse.setId(loginRequest.getId());
+        loginResponse.setLoginSuccess(true);
+        loginResponse.setMessage("로그인 성공");
+
+        return ResponseEntity.ok(loginResponse);
     }
 
 

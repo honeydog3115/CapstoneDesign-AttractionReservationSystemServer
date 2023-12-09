@@ -7,6 +7,8 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.util.Optional;
 
 @Repository
@@ -14,11 +16,13 @@ public interface ManagerRepository extends JpaRepository<Manager, Long> {
     // 매니저 Id로 매니저 튜플 가져오기
     Optional<Manager> findByManagerId(String managerId);
 
-    // 로그인시 아이디 pw맞나 검사
-    @Query("select 1 from Manager m where m.managerId like :managerId and m.pw like :pw")
-    Optional<Integer> checkLogIn(@Param("managerId") String managerId, @Param("pw") String pw);
+    boolean existsByManagerId(String managerId);
+
+    boolean existsByManagerIdAndAndPw(String managerId, String pw);
+
 
     // 담당 어트랙션 할당
+    @Transactional
     @Modifying(flushAutomatically = true, clearAutomatically = true)
     @Query("update Manager m set m.managementAttration = :attractionId where m.managerId like :managerId")
     int setAttraction(@Param("attractionId") String attractionId, @Param("managerId") String managerId);

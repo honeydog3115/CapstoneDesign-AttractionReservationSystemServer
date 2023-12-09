@@ -1,4 +1,4 @@
-package com.example.attractionReservationSystem.dto;
+package com.example.attractionReservationSystem.dto.Login;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
@@ -10,10 +10,11 @@ import lombok.Setter;
 public class LoginRequest {
     @NotBlank
     @Size(min = 5, max = 20)
-    String memberId;
+    String id;
 
     @NotBlank
     @Size(min = 5, max = 20)
     String pw;
+
 
 }

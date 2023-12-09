@@ -29,8 +29,8 @@ public class Reservation {
     @Column(name = "memberId", nullable = false, length = 20)
     String memberId;
 
-    @Column(name = "reservAttractionId", nullable = false)
-    int reservAttractionId; // 예약한 놀이기구 ID
+    @Column(name = "reservAttraction", nullable = false)
+    String reservAttraction; // 예약한 놀이기구
 
     @Column(name = "waitingNumber", nullable = false)
     int waitingNumber;      // 대기번호
@@ -38,9 +38,9 @@ public class Reservation {
     @Column(name = "reservCheck", nullable = false)
     boolean reservCheck;    // 담당자 예약 확인 여부
 
-    public Reservation(String memberId, int reservAttractionId, int waitingNumber, boolean reservCheck){
+    public Reservation(String memberId, String reservAttraction, int waitingNumber, boolean reservCheck){
         this.memberId = memberId;
-        this.reservAttractionId = reservAttractionId;
+        this.reservAttraction = reservAttraction;
         this.waitingNumber = waitingNumber;
         this.reservCheck = reservCheck;
     }

@@ -36,11 +36,11 @@ public class Member {
     @Column(name = "name", nullable = false, length = 10)
     String name;                //이름
 
-    @Column(name = "reservAttractionId")
-    int reservAttractionId;     //예약한 기구
+    @Column(name = "reservAttraction")
+    String reservAttraction;     //예약한 기구
 
-    @Column(name = "prevAttractionId")
-    int prevAttractionId;     //이전에 예약한 기구
+    @Column(name = "prevAttraction")
+    String prevAttraction;     //이전에 예약한 기구
 
     @Column(name = "waitingNumber")
     int waitingNumber;          //대기번호
